@@ -1,0 +1,132 @@
+{% extends 'general_base.html' %}
+
+{% block title %}
+Personal Profile
+{% endblock title %}
+
+{% block head %}
+
+{% load string_convert %}
+{% load dajaxice_templatetags %}
+{% dajaxice_js_import %}
+
+<style type="text/css">
+	#main_frame { width: 90%; margin: 0 5% 0 5%; }
+	#profile_table { width: 100%; border: none; border: 1px solid black  }
+	#content { margin: 0 5% 20px 5% }
+	.left_column { background-color: #ffffcc; vertical-align: top; width: 10%; -align: }
+	.right_column { background-color: #ffccff; width: 90% }
+	.profile_catalog_div { text-align: center;  width: 101%; padding: 10px 0px 10px 0; }
+	.category_list_item { display: block ;width: 100%;float: left  }
+	.category_list { list-style: none }
+</style>
+
+<script type="text/javascript">
+<!--
+	function refresh_title_tip(ta)
+	{
+		tt = document.getElementById('title_tip');
+		val_len = ta.value.length
+		if(val_len > 20) tt.innerHTML = 'Too Long';
+		else tt.innerHTML = (20 - val_len) + ' Character(s) Left';
+		return
+	}
+
+	function refresh_signature_tip(ta)
+	{
+		tt = document.getElementById('signature_tip');
+		val_len = ta.value.length
+		if(val_len > 50) tt.innerHTML = 'Too Long';
+		else tt.innerHTML = (50 - val_len) + ' Character(s) Left';
+		return
+	}
+
+	function refresh_signature(data)
+	{
+		if(data.success == true) 
+		{
+			document.getElementById('signature').value = data.content;
+			document.getElementById('signature_tip').innerHTML = 'Success'
+		}
+		else document.getElementById('signature_tip').innerHTML = data.reason
+	}
+
+	function refresh_title(data)
+	{
+		if(data.success == true) 
+		{
+			document.getElementById('title').value = data.content;
+			document.getElementById('title_tip').innerHTML = 'Success'
+		}
+		else document.getElementById('title_tip').innerHTML = data.reason
+	}
+
+	function update_title()
+	{
+		ta = document.getElementById('title')
+		Dajaxice.forum.update_title(refresh_title,{'new_title': ta.value})
+		return
+	}
+
+	function update_signature()
+	{
+		ta = document.getElementById('signature')
+		Dajaxice.forum.update_signature(refresh_signature,{'new_signature': ta.value})
+		return
+	}
+
+//-->
+</script>
+
+
+<script type="text/javascript">
+<!--
+	function change_category_color(cn)
+	{
+		$('.profile_catalog_div').css('backgroundColor','#ffffcc');
+		var ce = document.getElementById(cn)
+		ce.style.backgroundColor = '#ffccff'
+		return;
+	}
+
+	function refresh_content(data)
+	{
+		if(data.success == false)
+		{
+			alert('Internal Error. Please Contact the administrator');
+			return;
+		}
+		document.getElementById('content').innerHTML = data.content;
+		return;
+	}
+//-->
+</script>
+
+{% endblock head %}
+
+{% block body %}
+<div id='main_frame'>
+	<h1>User Profile</h1>
+	<table id='profile_table'>
+		<tr>
+			<td id='catalog' class='left_column'>
+				<!-- <ul class='category_list'> -->
+					{% for i in profile_type %}
+					<!--<li class='category_list_item'> -->
+						<div class='profile_catalog_div' id='category_{{ i.id }}'>
+							<a href='javascript:;' onclick='Dajaxice.forum.get_page(refresh_content,{"page_view": "{{i.page}}" }); change_category_color("category_{{ i.id }}")'>{{ i.name }}</a>
+						</div>
+					<!--</li>-->
+					{% endfor %}
+				<!--</ul>-->
+			</td>
+			<td id='catalog_content' class='right_column'>
+				<div id='content'>
+					<h2>This is the page to configue user profile</h2>
+					<p>Please choose from the left column.</p>
+				</div>
+			</td>
+		</tr>
+	</table>
+</div>
+{% endblock body %}

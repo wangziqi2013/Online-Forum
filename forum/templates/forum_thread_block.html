@@ -1,0 +1,22 @@
+			{% load string_convert %}
+			<li class="list-group-item">
+			<div class="row">
+				<div id='thread_type' class="col-md-1"><a href=''>[{{ i.ttype.name }}]</a></div>
+				<div id='thread_title' class="col-md-6"><a href='{% url forum.views.forum_post_page tid=i.tid %}'>
+					{% if i.highlighted %}
+					<strong style='color: #{{ i.highlight_color.rgb }}'>
+						{{ i.title }}
+					</strong>
+					{% else %}
+						{{ i.title }}
+					{% endif %}
+					</a>
+				</div>
+				<div id='thread_create_time' class="col-md-2" align='left'>{{i.uid.username}}<br/>{{i.create_time|readable_delta:meta.now}}</div>
+				<div id='thread_reply_read' class="col-md-1">{{i.num_of_reply}}<br/>{{ i.num_of_read }}</div>
+				<div id='thread_last_reply' class="col-md-2">
+					<span>{{ i.last_reply_user.username }}</span><br />
+					<span>{{ i.last_reply_time|readable_delta:meta.now }}</span>
+				</div>
+			</div>
+			</li>

@@ -1,0 +1,37 @@
+{% extends 'general_base.html' %}
+{% block title %}Information{% endblock title %}
+{% block body %}
+<div name='main_frame' style='margin: 100px;text-align: center'>
+<h1>{{ header_text }}</h1>
+<p>{{ tip_text }}</p>
+<div>
+{% for i in more_text %}
+<p>{{i}}</p>
+{% endfor %}
+</div>
+
+{% if jump_to_login %}
+<p><a href='{% url public.views.user_login_page default_username=default_username %}'>Click Here</a> 
+ to go to the login page</p>
+{% endif %}
+
+{% if jump_to_register %}
+{# If this is true you can provide a 'user_name' as the default username for the register page #}
+<p><a href='{% url public.views.user_register_page default_username=default_username %}'>Click Here</a> 
+ to return to login page</p>
+{% endif %}
+
+{% if jump_to_logout %}
+<p><a href='{% url public.views.user_logout_page %}'>Click Here</a> to logout.</p>
+{% endif %}
+
+{% if jump_to_back %}
+<p><a href='javascript: window.history.back();'>Click Here</a> to go back.</p>
+{% endif %}
+
+{% if jump_to_main %}
+<p><a href='{% url forum.views. %}'>Click Here</a> to the main page.</p>
+{% endif %}
+
+</div>
+{% endblock body %}

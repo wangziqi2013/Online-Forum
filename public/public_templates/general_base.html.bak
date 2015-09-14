@@ -1,0 +1,107 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+	<link href="/static/css/bootstrap.css" rel="stylesheet">
+	<script type="text/javascript" src='/static/js/jquery.js'></script>
+	<script type="text/javascript" src='/static/js/bootstrap.js'></script>
+	<script type="text/javascript" src='/static/js/pick-a-color-1.1.8.min.js'></script>
+	
+
+
+    <link href="/static/css/pick-a-color.min.css" rel="stylesheet">
+
+	{% block head %}
+
+	{% endblock head %}
+	<style type="text/css">
+		#contract { display: none }
+	</style>
+	<title>{% block title %}This is the base template{% endblock %}</title>
+	<style type='text/css'>
+		.navigation_text { color: yellow }
+		.navigation_login_status { margin: 0 0 0 5% }
+		.navigation_bar { background-color: #8888CC; color: yellow; margin: 5px 0px 5px 0px; padding: 5px 0px 5px 0px }
+	</style>
+
+<!--
+	<style type='text/css'>
+		{# Color Table Generation. Need a colors in the meta #}
+		{% for i in meta.colors %}
+		.color_{{i.rgb}} {% templatetag openbrace %} color: #{{i.rgb}} {% templatetag closebrace %}
+		{% endfor %}
+	</style>
+//-->
+
+	<script type="text/javascript">
+	<!--
+		function changeWidth(act)
+		{
+			mf = document.getElementById('main_frame')
+			if(act == 1) 
+			{
+				mf.style.width = '90%';
+				mf.style.marginLeft = '5%';
+				mf.style.marginRight = 0;
+				document.getElementById('extend').style.display = 'inline';
+				document.getElementById('contract').style.display = 'none';
+				//alert(act)
+			}
+			else if(act == 0)
+			{
+				
+				mf.style.width = '100%';
+				mf.style.marginLeft = '0%';
+				mf.style.marginRight = '0%';
+				document.getElementById('extend').style.display = 'none';
+				document.getElementById('contract').style.display = 'inline';
+			}
+			return;
+		}
+	//-->
+	</script>
+</head>
+
+<body>
+	{% block top_bar %}
+	<div class='navigation_bar'>
+		{% if meta.user_basic %}
+		<span class='navigation_login_status'>
+			{{ meta.user_basic.username }} | UID {{ meta.user_basic.uid }} |
+			Credit {{ meta.user_basic.userextend.credit }} | Money {{ meta.user_basic.userextend.money }}
+		</span>
+		<span style='position: absolute; right: 5%;'>
+			<span id='contract'><a class='navigation_text' href='javascript:;' onclick='changeWidth(1)'>Contract</a> |</span>
+			<span id='extend'><a class='navigation_text' href='javascript:;' onclick='changeWidth(0)'>Extend</a> |</span>
+			<a class='navigation_text' href='{% url forum.views.forum_board_page %}'>Forum</a> |
+			<a class='navigation_text' href='{% url public.views.user_logout_page %}'>Logout</a>
+		</span>
+		{% else %}
+		<span class='navigation_login_status'>Not Login</span>
+		<span style='position: absolute; right: 5%;'>
+			<span id='contract'><a class='navigation_text' href='javascript:;' onclick='changeWidth(1)'>Contract</a> |</span>
+			<span id='extend'><a class='navigation_text' href='javascript:;' onclick='changeWidth(0)'>Extend</a> |</span>
+			<a class='navigation_text' href='{% url forum.views.forum_board_page %}'>Forum</a> |
+			<a class='navigation_text' href='{% url public.views.user_register_page %}'>Register</a> |
+			<a class='navigation_text' href='{% url public.views.user_login_page %}'>Login</a>
+		</span>
+		{% endif %}
+	</div>
+	{% endblock top_bar %}
+	
+	{% block body %}
+	<h1>This is a base template</h1>
+	<p>If you see this page then something is going wrong</p>
+	{% endblock body %}
+	
+	{% block copyright %}
+	<div id='copyright' style='position: static'>
+	<hr />
+	<div style='text-align: center;'>Powered By CMPT 470 Group 18, Fall 2013</div>
+	{% endblock copyright %}
+</body>
+</html>

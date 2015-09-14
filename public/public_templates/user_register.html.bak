@@ -1,0 +1,116 @@
+{% extends "general_base.html" %}
+{% load dajaxice_templatetags %}
+{% block title %}
+Register Page
+{% endblock title %}
+{% block head %}
+<style type="text/css">
+	.error_info { font-size: 70%; color: red }
+	.hidden_line { display: none; text-align: center }
+	.ok_info { font-size: 70%; color: green; }
+</style>
+
+<script type="text/javascript">
+<!--
+	function display_name_test(data)
+	{
+		if(data.no_clash != false)
+		{
+			document.getElementById('username_clash').style.display = 'none';
+			document.getElementById('username_not_used').style.display = 'inline';
+		}
+		else
+		{
+			document.getElementById('username_clash').style.display = 'inline';
+			document.getElementById('username_not_used').style.display = 'none';
+		}
+	}
+
+	function send_username_verification()
+	{
+		var un = document.getElementById('username');
+		if (un.value != '')
+			Dajaxice.public.test_username(display_name_test,{"username": un.value})
+		return;
+	}
+
+	function check_password_equality()
+	{
+		var pass1 = document.getElementById('pass1');
+		var pass2 = document.getElementById('pass2');
+
+		if(pass1 != '' && pass2 != '' && pass1.value != pass2.value)
+		{
+			document.getElementById('password_not_match').style.display = 'inline';
+			document.getElementById('password_match').style.display = 'none';
+		}
+		else
+		{
+			document.getElementById('password_not_match').style.display = 'none';
+			document.getElementById('password_match').style.display = 'inline';
+		}
+		return;
+	}
+//-->
+</script>
+
+{% dajaxice_js_import %}
+{% endblock head %}
+{% block body %}
+<div name='main_frame' style='margin: 100px'>
+	<h1 style='text-align: center'>Register New User</h1>
+	<form action='{% url public.views.user_check_register %}' method='POST'>
+		{% csrf_token %}
+		<table align='center'>
+			<tr>
+				<td>User Name</td>
+				<td>
+					<input id='username' type='text' name='username' value='{{default_username}}' onblur='send_username_verification()'></input>
+				</td>
+			</tr>
+			<tr id='username_clash' class='hidden_line'>
+				<td colspan=2>
+					<div class='error_info'>
+						<strong>User name already exists.</strong>
+					</div>
+				</td>
+			</tr>
+			<tr id='username_not_used' class='hidden_line'>
+				<td>
+					<div class='ok_info'>
+						<strong>User name have not been used.</strong>
+					</div>
+				</td>
+			</tr>
+			<tr><td>Password</td><td><input id='pass1' type='password' name='password'></input></td></tr>
+			<tr>
+				<td>Password Again</td>
+				<td>
+					<input id='pass2' type='password' name='password2' onblur='check_password_equality()'></input>
+				</td>
+			</tr>
+			<tr id='password_not_match' class='hidden_line'>
+				<td colspan=2>
+					<span class='error_info'>
+						<strong>Two passwords does not match!</strong>
+					</span>
+				</td>
+			</tr>
+			<tr id='password_match' class='hidden_line'>
+				<td colspan=2>
+					<span class='ok_info'>
+						<strong>Two passwords match. You can continue.</strong>
+					</span>
+				</td>
+			</tr>
+			<tr><td colspan=2 align='center'>&nbsp;</td></tr>
+			<tr><td colspan=2 align='center'>
+			<input type='submit' value='Register Now'></input>
+			<input type='reset' value='Clear All'></input>
+			</td></tr>
+			<tr><td colspan=2 align='center'>&nbsp;</td></tr>
+			<tr><td colspan=2 align='center'><a href='{% url public.views.user_login_page %}'>Click Here</a> to login</td></tr>
+		</table>
+	</form>
+</div>
+{% endblock body %}

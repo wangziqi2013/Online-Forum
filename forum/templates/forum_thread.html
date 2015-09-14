@@ -1,0 +1,96 @@
+{% extends 'general_base.html' %}
+{% block title %}
+{{ board_basic.name }}
+{% endblock title %}
+
+{% block head %}
+<!--
+<style type='text/css'>
+#main_frame { margin: 0% 5% 50px 5%; width: 90%; position: relative }
+.thread_type { width: 10%; font-size: 70% }
+.thread_title { width: 60% }
+.thread_create_time { width: 10%; font-size: 70% }
+.thread_reply_read { width: 5%; font-size: 70% }
+.thread_last_reply { width: 10%; font-size: 70% }
+#page_selector { padding: 5px 0 5px 0; position: absolute; right: 0}
+.page_navigation { color: blue; margin: 5px 5px 5px 5px }
+#other_uppermost_sep { background-color: #BBCCDD }
+#uppermost_table { width: 100%; text-align: left }
+#your_position {font-size: 70%;}
+#set_thread_per_page_form { display: inline; margin: 5px }
+#set_thread_per_page { position: absolute; right: 0 }
+</style>
+//-->
+
+<link href="/static/css/forumthread.css" rel="stylesheet">
+
+{% endblock head %}
+
+{% block body %}
+{% load string_convert %}
+
+<div class="container" id='main_frame'>
+	<h1>{{ board_basic.name }}</h1>
+	<div class="your_position" id='your_position'>
+	    <div class="col-md-8">
+		<ol class="breadcrumb">
+			<li><a href='{%url forum.views.forum_board_page%}'>Forum</a></li>
+			<li><a href='{% url forum.views.forum_thread_page bid=board_basic.bid %}'>{{ board_basic.name }}</a></li>
+			<li><a href='{% url forum.views.forum_thread_page bid=board_basic.bid page=current_page thread_per_page=thread_per_page %}'>Page {{current_page}}</a></li>
+		</ol>
+	    </div>
+	    <div class="col-md-4">
+		<span id='set_thread_per_page'>
+		<form id='set_thread_per_page_form' action='{% url forum.views.set_thread_per_page %}' method='POST'>
+			{% csrf_token %}
+			<input name='bid' type='hidden' value='{{ board_basic.bid }}'></input>
+			Page <input name='goto_page' size='4'></input>
+			Thread / Page <input name='object_per_page' size='4'></input>
+			<input type='submit' value='Go'></input>
+		</form>
+		</span>
+	    </div>
+	</div>
+	<br />
+	{% if threads.uppermost %}
+	<div class="panel panel-danger" id='uppermost'>
+		<ul class="list-group">
+			{% for i in threads.uppermost %}
+			{% include 'forum_thread_block.html' %}
+			{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	<div id='other_uppermost_sep'>&nbsp;</div>
+	{% if threads.other %}
+	<div class="panel panel-primary" id='other'>
+		<ul class="list-group">
+
+			{% for i in threads.other %}
+			{% include 'forum_thread_block.html' %}
+			{% endfor %}
+
+		</ul>
+	</div>
+	{% endif %}
+	<ul class="pagination" id='page_selector'>
+
+		{% if current_page != 1 %}
+			<li><a href='{% url forum.views.forum_thread_page board_basic.bid 1 thread_per_page %}'>&laquo;</a></li>
+			<li><a href='{% url forum.views.forum_thread_page board_basic.bid current_page|add:-1 thread_per_page %}'>&lt;</a></li>
+		{% endif %}
+		{% for i in total_page|get_range:current_page %} {# starts at 1 #}
+			{% if i != current_page %}
+				<li><a href='{% url forum.views.forum_thread_page board_basic.bid i thread_per_page %}'>{{i}}</a></li>
+			{% else %}
+				<li class="active"><a href="#">{{i}}</a></li>
+			{% endif %}
+		{% endfor %}
+		{% if current_page != total_page %}
+			<li><a href='{% url forum.views.forum_thread_page board_basic.bid current_page|add:1 thread_per_page %}'>&gt;</a></li>
+			<li><a href='{% url forum.views.forum_thread_page board_basic.bid total_page thread_per_page %}'>&raquo;</a></li>
+		{% endif %}
+
+	</ul>
+</div>
+{% endblock body %}

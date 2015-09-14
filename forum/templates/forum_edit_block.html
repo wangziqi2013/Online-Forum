@@ -1,0 +1,80 @@
+				<td class='right_column'>
+					<div id='new_post_text_style_wrapper'>
+						<span class='new_post_text_style'><a href='javascript:;' onclick='make_bold()'>B</a></span>
+						<span class='new_post_text_style' data-toggle="modal" data-target="#color_selector">
+							<a href='javascript:;'>COLOR</a>
+						</span>
+						<span class='new_post_text_style' data-toggle="modal" data-target="#image_selector">
+							<a href='javascript:;'>IMG</a>
+						</span>
+						<span class='new_post_text_style' data-toggle='modal' data-target='#size_selector'>
+							<a href='javascript:;'>SIZE</a>
+						</span>
+						<span class='new_post_text_style' id='after_render_checkbox'>
+							<input type='checkbox' id='after_render' onclick='get_rendered_text(this)'>&nbsp;<label for='after_render'>After Render</label>
+						</span>
+					</div>
+					<div id='new_post_text_wrapper'>
+						<div contenteditable='true' id='after_render_display'></div>
+						<textarea id='new_post_text'></textarea>
+					</div>
+					<button id='make_new_post_button' onclick='make_new_post()' class='btn'>Submit</button>
+
+					<!-- Modal -->
+<div class="modal fade" id="color_selector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Choose A Color</h4>
+      </div>
+      <div class="modal-body">
+			<div>Please Choose A Color:</div>
+			<input type="text" value="000" id="post_text_color" class="pick-a-color">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss='modal' onclick='add_color();'>OK</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="image_selector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Choose A Color</h4>
+      </div>
+      <div class="modal-body">
+			<div><pre>URL:    <input type="text" value="" id="post_image_url"></pre></div>
+			<div><pre>Width:  <input type='text' value='' id='post_image_width'></pre></div>
+			<div><pre>Height: <input type='text' value='' id='post_image_height'></pre></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss='modal' onclick='add_image();'>OK</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="size_selector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Choose A Size</h4>
+      </div>
+      <div class="modal-body">
+			<div>Please Enter The Size:</div>
+			<div><pre>Size: <input type="text" value="" id="post_text_size"></pre></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss='modal' onclick='add_size();'>OK</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

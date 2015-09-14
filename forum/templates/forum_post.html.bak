@@ -1,0 +1,510 @@
+{% extends 'general_base.html' %}
+
+{% load string_convert %}
+
+{% load dajaxice_templatetags %}
+
+{% block title %}
+View Posts
+{% endblock title %}
+{% block head %}
+
+
+
+<style type="text/css">
+#main_frame { font-size: 130% }
+#thread_info_table { width: 100%; }
+.left_column { width: 20%; background-color: #ffccff; padding: 5px; vertical-align: top; }
+.right_column { width: 80%; background-color: #ffffcc; padding: 5px; vertical-align: top }
+#main_frame { width: 90%; margin: 0 5% 50px 5%; position: relative }
+#your_position {font-size: 70%;}
+#set_post_per_page_form { display: inline; margin: 5px }
+#set_post_per_page { position: absolute; right: 0 }
+#thread_info { margin: 10px 0 0 0 }
+#thread_creator { font-size: 70%; text-align: center }
+.single_post { border: 2px solid white}
+#post_list_table { width: 100% }
+#make_new_post_table { width: 100% }
+.first_line { margin: 0 0 10px 0 }
+.post_wrap { margin: 5px 10px 0 10px; position: relative }
+.post_content { width: 100% }
+.post_datetime { font-size: 70%;}
+.post_info { font-size: 70%; text-align: left }
+.poster_extend_tag { width: 30%; float: left }
+.poster_extend_value { width: 50% }
+.post_floor { position: absolute; right: 20px }
+#page_selector { padding: 5px 0 5px 0; position: absolute; right: 0}
+.page_navigation { color: blue; margin: 5px 5px 5px 5px }
+.post_reply { margin: 20px 0 0 0; font-size: 70% }
+.reply_tip { font-size: 70%; margin: 20px 0 10px 0; color: blue; font-weight: bold  }
+.reply_entries { width: 100% }
+.reply_names { margin: 0px 5px 0px 0px }
+.reply_time { color: gray }
+.bottom_post_bar { font-size: 70%; position: relative; margin: 10px 0 0 0; }
+.bottom_post_bar_element { margin: 0 5px 0 5px }
+.post_modify_tip { font-size: 70%; color: gray; margin: 0 0 10px 0; text-align: center }
+#new_post_text { width: 100%; height: 150px }
+.new_post_text_style { margin: 0 5px 0 5px }
+#new_post_text_style_wrapper { margin: 5px 0 5px 0 }
+#new_post_input { width: 90%; height: 50px }
+#post_image_url { width: 80% }
+#after_render_checkbox { position: absolute; right: 10px }
+#after_render_display { display: none; width: 100%; height: auto; min-height: 150px; border: 2px solid black }
+#quote_tip { display: none }
+#make_new_post_id { text-align: center }
+#make_new_post_image { text-align: center }
+.poster_statistic { width: 100%; text-align: center }
+.user_title { color: gray }
+.user_signature_col { vertical-align: bottom }
+.signature { font-size: 70% }
+</style>
+
+{% dajaxice_js_import %}
+
+<script type="text/javascript">
+<!--
+	function set_quote_text()
+	{
+		//var ta = document.getElementById('new_post_text')
+		//var quoted = document.getElementById('post_text_' + window.recent_pid)
+		//var quoted_text = quoted.innerHTML
+		var tip = document.getElementById('quote_tip')
+		tip.style.display = 'block';
+		document.getElementById('quote_tip_text').innerHTML = 'You have quoted from floor #' + window.recent_floor;
+		ta.focus()
+		return
+	}
+
+	function make_new_reply()
+	{
+		var reply_text = document.getElementById('new_post_input');
+		var val = reply_text.value
+		var val_len = val.length
+		if(val_len > 80)
+		{
+			alert("You cannot make a comment with more than 80 characters!");
+			// We do not clear the input box in case that the user wants to modify on their
+			// previous reply.
+			return;
+		}
+		else if(val_len < 5)
+		{
+			alert('You cannot make a comment with less than 5 characters!');
+			return; // Same as above
+		}
+		Dajaxice.forum.make_new_reply(load_replies,{'post_id': recent_pid, 'reply_text': val})
+		reply_text.value = '';
+		return;
+	}
+
+	function reply_change(ta)
+	{
+		var val = ta.value
+		var val_len = val.length;
+		var rn = document.getElementById('reply_remain_char');
+		if(val_len > 80)
+			rn.innerHTML = 'You have too much!';
+		else if(val_len == 79)
+			rn.innerHTML = '1 Character Remaining';
+		else
+			rn.innerHTML = (80 - val_len) + ' Characters Remaining';
+		return;
+			
+	}
+
+	function get_rendered_text(ckb)
+	{
+		var ta = document.getElementById('new_post_text');
+		var div = document.getElementById('after_render_display')
+		if(ckb.checked == false)
+		{
+			ta.style.display = 'block';
+			div.style.display = 'none';
+		}
+		else
+		{
+			ta.style.display = 'none';
+			div.style.display = 'block';
+			Dajaxice.forum.render_tag_text(function(data) { div.innerHTML = '<pre>' + data.text + "</pre>"; },{ 'tid': {{ thread_basic.tid }}, 'tag_text': ta.value})
+		}
+	}
+
+	function add_decorator(ta,pre,post,content)
+	{
+		var ss = ta.selectionStart
+		var se = ta.selectionEnd
+		var val = ta.value
+		var sub = val.substring(ss,se)
+		var pre_sub = val.substring(0,ss)
+		var post_sub = val.substring(se,val.length)
+		if (typeof content === 'undefined') ta.value = pre_sub + pre + sub + post + post_sub;
+		else ta.value = pre_sub + pre + content + post + post_sub;
+		return;
+	}
+
+	function add_size()
+	{
+		var ta = document.getElementById('new_post_text');
+		var val = document.getElementById('post_text_size').value;
+		var pre = '[size=' + val + ']';
+		var post = '[/size]';
+		add_decorator(ta,pre,post);
+		return;
+		
+	}
+
+	function add_image()
+	{
+		var ta = document.getElementById('new_post_text');
+		var img = document.getElementById('post_image_url');
+		var h = document.getElementById('post_image_height').value;
+		var w = document.getElementById('post_image_width').value;
+		if(h != '') var h_tag = ' height=' + h;
+		else var h_tag = '';
+		if(w != '') var w_tag = ' width=' + w;
+		else var w_tag = '';
+		var pre = '[img ' + w_tag + h_tag + ']';
+		var post = '[/img]'
+		add_decorator(ta,pre,post,img.value);
+		return;
+	}
+
+	function add_color()
+	{
+		var ta = document.getElementById('new_post_text');
+		var color = document.getElementById('post_text_color').value;
+		if (color == '') return;
+		var pre = '[color=#' + color + ']'
+		var post = '[/color]'
+		add_decorator(ta,pre,post)
+		return
+	}
+
+	function make_bold()
+	{
+		var ta = document.getElementById('new_post_text')
+		add_decorator(ta,'[b]','[/b]');
+		return;
+	}
+
+	function display_new_post(data)
+	{
+		if(data.success == false)
+		{
+			alert('Post Fails');
+			return;
+		}
+
+		document.getElementById('post_list_table').innerHTML += data.content;
+	}
+
+	function make_new_post()
+	{
+		var txt = document.getElementById('new_post_text').value
+		if(txt == '') return;
+		// We must distinguish a quote post and normal one
+		if(!window.recent_floor) 
+			Dajaxice.forum.make_new_post(display_new_post,{'thread_id': {{ thread_basic.tid }},'text': txt})
+		else 
+			Dajaxice.forum.make_new_post(display_new_post,{'thread_id': {{ thread_basic.tid }},'text': txt, 'quote_floor': recent_floor})
+		
+		document.getElementById('new_post_text').value = '';
+		// Must clear the global variable
+		document.getElementById('quote_tip').style.display = 'none';
+		window.recent_floor = undefined;
+		window.recent_pid = undefined
+		return;
+	}
+
+	function load_votes(data)
+	{
+		//alert(data.vote_success)
+		if(data.vote_success == false)
+		{
+			alert('You have already voted!');
+			return;
+		}
+		var votes = data.votes
+		if (votes[0] == 0 && votes[1] == 0)
+		{
+			//return;
+		}
+		var up_object_id = 'votes_up_' + data.post_id
+		var down_object_id = 'votes_down_' + data.post_id
+		up_object = document.getElementById(up_object_id)
+		down_object = document.getElementById(down_object_id)
+		up_object.innerHTML = 'Upvote ' + votes[0]
+		down_object.innerHTML = 'Downvote ' + votes[1]
+		return
+	}	
+	
+	function send_vote(post_id,vote)
+	{
+		Dajaxice.forum.vote_post(load_votes,{'post_id': post_id,'vote': vote})
+	}
+
+	function load_replies(data)
+	{
+		var replies = data.replies
+
+		if (data.total_page == 0) return;
+
+		var object_id = 'post_reply_'
+		object_id += data.post_id
+		var post = document.getElementById(object_id)
+
+		var line = ''
+		if (replies.length > 1) line += '<div class="reply_tip">Replies</div>'
+		else line += '<div class="reply_tip">Reply</div>'
+		
+		line += '<div class="reply_entries"><table>'
+		for(var i = 0;i < replies.length;i++)
+		{
+			line += '<tr class="single_reply"><td><img height=40 width=40 src="/' + replies[i].image + '" />'
+			line += '<span class="reply_names"><strong>' + replies[i].username +'</strong></span></td>'
+			line += '<td>' + replies[i].text + '&nbsp;&nbsp;<span class="reply_time">Posted ' + replies[i].post_time + '</span></td></tr>'
+		}
+		line += '</table></div>'
+		
+		line += '<div><table><tr>'
+		for (var i = 0;i < data.available_pages.length;i++)
+		{
+			line += '<td class="page_navigation"><a href="javascript:;" onclick=\'' + data.page_link[i] + '\'>' + data.available_pages[i] + '</a></td>' 
+		}
+		post.innerHTML = line
+		return
+	}
+
+	function load_details(data)
+	{
+		load_replies(data)
+		load_votes(data)
+		return;
+	}
+//-->
+</script>
+
+{% endblock head %}
+
+{% block body %}
+
+<div id='main_frame'>
+	<h1>View Posts</h1>
+	<div id='your_position'>
+		<span>
+			<a href='{%url forum.views.forum_board_page%}'>Forum</a> /
+			<a href='{% url forum.views.forum_thread_page bid=board_basic.bid %}'>{{ board_basic.name }}</a> /
+			<a href='{% url forum.views.forum_post_page tid=thread_basic.tid %}'>{{ thread_basic.title }}</a> /
+			<a href='{% url forum.views.forum_post_page tid=thread_basic.tid page=current_page %}'>Page {{current_page}}</a>
+		</span>
+		<span id='set_post_per_page'>
+		<form id='set_post_per_page_form' action='{% url forum.views.set_post_per_page %}' method='POST'>
+			{% csrf_token %}
+			<input name='tid' type='hidden' value='{{ thread_basic.tid }}'></input>
+			Page <input name='goto_page' size='4'></input>
+			Post / Page <input name='object_per_page' size='4'></input>
+			<input type='submit' value='Go'></input>
+		</form>
+		</span>
+	</div>
+	<div id='thread_info'>
+		<table id='thread_info_table'>
+			<tr>
+				<td id='thread_creator' class='left_column'>Creator {{ thread_basic.uid.username }}</td>
+				<td id='thread_title' class='right_column'><strong>[{{ thread_basic.ttype.name }}]{{ thread_basic.title }}</strong></td>
+			</tr>
+		</table>
+	</div>
+	<div id='post_list'>
+		<table id='post_list_table'>
+			{% for i in posts %}
+			{% include 'forum_post_block.html' %}
+			{% endfor %}
+		</table>
+		{% if meta.user_basic %}
+		<table id='make_new_post_table'>
+			<tr>
+				<td class='left_column make_new_post_left'>
+					<div id='make_new_post_id'>
+						{{ meta.user_basic.username }}
+					</div>
+					<div id='make_new_post_image'>
+						<img height='120' width='120' src='/{{ meta.user_basic.userextend.image }}'></img>
+					</div>
+				</td>
+				<td class='right_column'>
+					<div id='new_post_text_style_wrapper'>
+						<span class='new_post_text_style'><a href='javascript:;' onclick='make_bold()'>B</a></span>
+						<span class='new_post_text_style' data-toggle="modal" data-target="#color_selector">
+							<a href='javascript:;'>COLOR</a>
+						</span>
+						<span class='new_post_text_style' data-toggle="modal" data-target="#image_selector">
+							<a href='javascript:;'>IMG</a>
+						</span>
+						<span class='new_post_text_style' data-toggle='modal' data-target='#size_selector'>
+							<a href='javascript:;'>SIZE</a>
+						</span>
+						<span class='new_post_text_style' id='after_render_checkbox'>
+							<input type='checkbox' id='after_render' onclick='get_rendered_text(this)'>&nbsp;<label for='after_render'>After Render</label>
+						</span>
+					</div>
+					<div id='new_post_text_wrapper'>
+						<div id='quote_tip'><span id='quote_tip_text'></span><a href='javascript:;' onclick='window.recent_floor = undefined; document.getElementById("quote_tip").style.display="none"'>[Clear]</a></div>
+						<div contenteditable='true' id='after_render_display'></div>
+						<textarea id='new_post_text'></textarea>
+					</div>
+					<button id='make_new_post_button' onclick='make_new_post()' class='btn btn-primary'>Submit</button>
+				</td>
+			</tr>
+		</table>
+		{% endif %}
+	</div>
+	<div id='page_selector'>
+		<table>
+			<tr>
+				{% if current_page != 1 %}
+				<td><span class='page_navigation'>
+					<a href='{% url forum.views.forum_post_page thread_basic.tid 1 post_per_page %}'>First</a>
+				</span></td>
+				<td><span class='page_navigation'>
+					<a href='{% url forum.views.forum_post_page thread_basic.tid current_page|add:-1 post_per_page %}'>Previous</a>
+				</span></td>
+				{% endif %}
+				{% for i in total_page|get_range:current_page %} {# starts at 1 #}
+				<td>
+					<span class='page_navigation'>
+						{% if i != current_page %}
+						<a href='{% url forum.views.forum_post_page thread_basic.tid i post_per_page %}'>{{i}}</a>
+						{% else %}
+						<strong>{{i}}</strong>
+						{% endif %}
+					</span>
+				</td>
+				{% endfor %}
+				{% if current_page != total_page %}
+				<td><span class='page_navigation'>
+					<a href='{% url forum.views.forum_post_page thread_basic.tid current_page|add:1 post_per_page %}'>Next</a>
+				</span></td>
+				<td><span class='page_navigation'>
+					<a href='{% url forum.views.forum_post_page thread_basic.tid total_page post_per_page %}'>Last</a>
+				</span></td>
+				{% endif %}
+			</tr>
+		</table>
+	</div>
+</div>
+
+
+
+					<!-- Modal -->
+<div class="modal fade" id="color_selector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Choose A Color</h4>
+      </div>
+      <div class="modal-body">
+			<div>Please Choose A Color:</div>
+			<input type="text" value="000" id="post_text_color" class="pick-a-color">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss='modal' onclick='add_color();'>OK</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="image_selector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Choose A Color</h4>
+      </div>
+      <div class="modal-body">
+			<div><pre>URL:    <input type="text" value="" id="post_image_url"></pre></div>
+			<div><pre>Width:  <input type='text' value='' id='post_image_width'></pre></div>
+			<div><pre>Height: <input type='text' value='' id='post_image_height'></pre></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss='modal' onclick='add_image();'>OK</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="size_selector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Choose A Size</h4>
+      </div>
+      <div class="modal-body">
+			<div>Please Enter The Size:</div>
+			<div><pre>Size: <input type="text" value="" id="post_text_size"></pre></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss='modal' onclick='add_size();'>OK</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!--  =========================================================  -->
+
+<div class="modal fade" id="reply_dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Choose A Size</h4>
+      </div>
+      <div class="modal-body">
+			<div>Please Enter The Reply Text:</div>
+			<div><textarea type="text" id="new_post_input" maxlength='80'  onkeypress='reply_change(this)' onchange='reply_change(this)' ></textarea></div>
+			<div id='reply_remain_char'></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss='modal' onclick='make_new_reply();'>OK</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<div class="modal fade" id="quote_dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Choose A Size</h4>
+      </div>
+      <div class="modal-body">
+			<div><textarea type="text" id="new_post_input" maxlength='80'  onkeypress='reply_change(this)' onchange='reply_change(this)' ></textarea></div>
+			<div id='reply_remain_char'></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss='modal' onclick='make_new_reply();'>OK</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<script type="text/javascript">
+<!--
+	// enable the color picker plug-in
+	$(".pick-a-color").pickAColor();
+//-->
+</script>
+
+{% endblock body %}

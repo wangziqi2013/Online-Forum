@@ -1,0 +1,78 @@
+{% extends "general_base.html" %}
+{% load dajaxice_templatetags %}
+{% block title %}
+Register Page
+{% endblock title %}
+{% block head %}
+
+<!--
+<style type="text/css">
+	.error_info { font-size: 70%; color: red }
+	.hidden_line { display: none; text-align: center }
+	.ok_info { font-size: 70%; color: green; }
+</style>
+//-->
+<link href="/static/css/register.css" rel="stylesheet">
+<script type="text/javascript">
+<!--
+	function display_name_test(data)
+	{
+		if(data.no_clash != false)
+		{
+			$('#username').popover('hide');
+		}
+		else
+		{
+			$('#username').popover('show');
+			$('#username').css("border-color","#e866af");
+			$('#username').css("-webkit-box-shadow","inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(232, 102, 175, 0.6)");
+			$('#username').css("box-shadow","inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(232, 102, 175, 0.6)");
+		}
+	}
+
+	function send_username_verification()
+	{
+		var un = document.getElementById('username');
+		if (un.value != '')
+			Dajaxice.public.test_username(display_name_test,{"username": un.value})
+		return;
+	}
+
+	function check_password_equality()
+	{
+		var pass1 = document.getElementById('password');
+		var pass2 = document.getElementById('password2');
+
+		if(pass1.value != '' && pass2.value != '' && pass1.value != pass2.value)
+		{
+			$('#password2').popover('show');
+			$('#password2').css("border-color","#e866af");
+			$('#password2').css("-webkit-box-shadow","inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(232, 102, 175, 0.6)");
+			$('#password2').css("box-shadow","inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(232, 102, 175, 0.6)");
+
+		}
+		else
+		{
+			$('#password2').popover('hide');
+		}
+		return;
+	}
+//-->
+</script>
+
+{% dajaxice_js_import %}
+{% endblock head %}
+{% block body %}
+<div class="container">
+	<form class="form-signin" action='{% url public.views.user_check_register %}' method='POST'>
+	<h2 class="form-signin-heading">Register New User</h2>
+		{% csrf_token %}
+		<input id="username" class="form-control" type='text' name='username' placeholder="User Name" required autofocus value='{{default_username}}' onblur='send_username_verification()' data-trigger='manual' data-content="User name already exists." data-placement='bottom'></input>
+		<input id="password" class="form-control" type='password' name='password' placeholder="Enter Password" required></input>
+		<input id="password2" class="form-control" name="password2" type="password" placeholder="Password Again" required onblur='check_password_equality()' data-trigger='manual' data-content="Two passwords does not match!" data-placement='bottom'></input>
+		<button class="btn btn-lg btn-primary btn-block" type="submit" value="Register Now">Register Now</button>
+		<button class="btn btn-lg btn-primary btn-block" type="reset" value="Clear All">Clear All</button>
+		<div><a href='{% url public.views.user_login_page %}'>Click Here</a> to login</div>
+	</form>
+</div>
+{% endblock body %}

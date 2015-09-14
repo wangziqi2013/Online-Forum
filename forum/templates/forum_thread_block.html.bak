@@ -1,0 +1,19 @@
+			{% load  %}
+			<tr class='thread_row'>
+				<td class='thread_type'><a href=''>[{{ i.ttype.name }}]</a></td>
+				<td class='thread_title'><a href='{% url forum.views.forum_post_page tid=i.tid %}'>
+					{% if i.highlighted %}
+					<strong style='color: #{{ i.highlight_color.rgb }}'>
+						{{ i.title }}
+					</strong>
+					{% else %}
+						{{ i.title }}
+					{% endif %}
+					</a></td>
+				<td class='thread_create_time' align='left'>{{i.uid.username}}<br/>{{i.create_time|readable_delta:meta.now}}</td>
+				<td class='thread_reply_read'>{{i.num_of_reply}}<br/>{{ i.num_of_read }}</td>
+				<td class='thread_last_reply'>
+					<span>{{ i.last_reply_user.username }}</span><br />
+					<span>{{ i.last_reply_time|readable_delta:meta.now }}</span>
+				</td>
+			</tr>

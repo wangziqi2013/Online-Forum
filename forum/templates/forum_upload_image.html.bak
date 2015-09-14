@@ -1,0 +1,11 @@
+
+<h2>Upload Your Image</h2>
+<p>Choose an image file from your local file system, and uplaod that to the server as your own user image. This image will be presented when you make a new post or comment.</p>
+
+<form action='{% url forum.views.forum_uploadimage_page %}' method='post' enctype="multipart/form-data">
+	{% csrf_token %}
+	{{ form.img.errors }}
+	<label for='id_img'>Local File Path: </label>
+	{{ form.img }}
+	<input type='submit' value='Submit'>
+</form>

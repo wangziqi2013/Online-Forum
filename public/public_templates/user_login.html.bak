@@ -1,0 +1,23 @@
+{% extends "general_base.html" %}
+
+{% block title %}
+Register Page
+{% endblock title %}
+{% block body %}
+<div name='main_frame' style='margin: 100px'>
+<h1 style='text-align: center'>User Login</h1>
+<form action='{% url public.views.user_check_login %}' method='POST'>
+{% csrf_token %}
+<table align='center'>
+<tr><td>User Name</td><td><input type='text' name='username' value='{{default_username}}'></input></td></tr>
+<tr><td>Password</td><td><input type='password' name='password'></input></td></tr>
+<tr><td colspan=2 align='center'>&nbsp;</td></tr>
+<tr><td colspan=2 align='center'>
+<input type='submit' value='Login'></input>
+<input type='reset' value='Clear All'></input>
+</td></tr>
+<tr><td colspan=2 align='center'><a href='{% url public.views.user_register_page %}'>Click Here</a> to register</td></tr>
+</table>
+</form>
+</div>
+{% endblock body %}

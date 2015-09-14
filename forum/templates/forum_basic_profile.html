@@ -1,0 +1,62 @@
+{% load string_convert %}
+
+<style type="text/css">
+	#signature, #title { width: 150% }
+</style>
+
+<h2>Basic Personal Profile</h2>
+<table>
+	<tr id='username_row'>
+		<td><strong>User Name </strong></td>
+		<td>{{ meta.user_basic.username }}</td>
+	</tr>
+	<tr>
+		<td><strong>UID </strong></td>
+		<td>{{ meta.user_basic.uid }}<td>
+	</tr>
+	<tr>
+		<td><strong>User Image </strong></td>
+		<td><img src='/{{meta.user_basic.userextend.image}}' height=120 width=120 /></td>
+	</tr>
+	<tr>
+		<td><strong>Password </strong></td>
+		<td>**********<td>
+	</tr>
+	<tr>
+		<td><strong>Threads </strong></td>
+		<td>{{ meta.user_basic.userextend.num_of_threads }}</td>
+	</tr>
+	<tr>
+		<td><strong>Posts </strong></td>
+		<td>{{ meta.user_basic.userextend.num_of_posts }}</td>
+	</tr>
+	<tr>
+		<td><strong>Money </strong></td>
+		<td>{{ meta.user_basic.userextend.money }}</td>
+	</tr>
+	<tr>
+		<td><strong>Credit </strong></td>
+		<td>{{ meta.user_basic.userextend.credit }}</td>
+	</tr>
+	<tr>
+		<td><strong>Date of Registration </strong></td>
+		<td>{{ meta.user_basic.userextend.register_date|num_date }}</td>
+	</tr>
+	<tr>
+		<td><strong>Title </strong></td>
+		<td>
+			<input id='title' value='{{ meta.user_basic.userextend.title }}' onchange='refresh_title_tip(this)' onkeypress='refresh_title_tip(this)'>
+			<button onclick='update_title()'>Update</button>
+			<span id='title_tip'></span>
+		</td>
+	</tr>
+	<tr>
+		<td><strong>Signature </strong></td>
+		<td>
+			<input id='signature' value='{{ meta.user_basic.userextend.signature }}' onchange='refresh_signature_tip(this)' onkeypress='refresh_signature_tip(this)'>
+			<button onclick='update_signature()'>Update</button>
+			<span id='signature_tip'></span>
+		</td>
+	</tr>
+
+</table>

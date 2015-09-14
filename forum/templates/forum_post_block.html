@@ -1,0 +1,88 @@
+			{% load string_convert %}
+
+			<tr class='single_post'>
+				<td class='post_info left_column' {% if i.uid.userextend.signature %}rowspan=2{% endif %}>
+					<div class='post_wrap'>
+						<div class='poster_name first_line'><strong>{{ i.uid.username }}</strong></div>
+						<div class='poster_image'><img height=120 width=120 src='/{{ i.uid.userextend.image }}' /></div>
+						<br />
+						<!--
+						<div class='poster_statistic'><pre>{{i.uid.userextend.num_of_threads}}   |   {{i.uid.userextend.num_of_posts}}   |   {{i.uid.userextend.privilege}}</pre></div>
+						<div><pre> Threads   Posts   Level</pre></div>
+						-->
+						{% if i.uid.userextend.title %}
+						<span class='user_title'>{{ i.uid.userextend.title }}</span>
+						<br /><br />
+						{% endif %}
+						
+						<div class='poster_extend'>
+							<table id='poster_extend_table'>
+								<tr id='poster_level'>
+									<td id='poster_level_tag' class='poster_extend_tag'>Level</td>
+									<td id='poster_level' class='poster_extend_value'>{{i.uid.userextend.privilege}}<td>
+								</tr>
+								<tr id='poster_level'>
+									<td id='poster_uid_tag' class='poster_extend_tag'>UID</td>
+									<td id='poster_uid' class='poster_extend_value'>{{i.uid.uid}}<td>
+								</tr>
+								<tr id='poster_level'>
+									<td id='poster_money_tag' class='poster_extend_tag'>Money</td>
+									<td id='poster_money' class='poster_extend_value'>{{i.uid.userextend.money}}<td>
+								</tr>
+								<tr id='poster_level'>
+									<td id='poster_credit_tag' class='poster_extend_tag'>Credit</td>
+									<td id='poster_credit' class='poster_extend_value'>{{i.uid.userextend.credit}}<td>
+								</tr>
+								<tr id='poster_level'>
+									<td id='poster_register_time_tag' class='poster_extend_tag'>Register</td>
+									<td id='poster_register_time' class='poster_extend_value'>{{i.uid.userextend.register_date|num_date}}<td>
+								</tr>
+
+							</table>
+						</div>
+					</div>
+				</td>
+				<td class='post_body right_column'>
+					<div class='post_wrap'>
+						<div class='first_line post_datetime'>
+							<span>Posted: {{ i.post_date|readable_delta:meta.now }}</span>
+							<span class='post_floor'>{{ i.floor|floor_to_text:floor_name_num }}</span>
+						</div>
+						{% if i.post_date != i.modify_date %}
+						<div class='post_modify_tip'>
+							<span>This post has been edited {{ i.modify_date|readable_delta:meta.now }}</span>
+						</div>
+						{% endif %}
+						{% autoescape off %}
+						<div class='post_content' id='floor_{{ i.floor }}'>
+							<pre id='post_text_{{ i.pid }}'>{{ i.text|post_text_render:i.tid.tid }}</pre>
+						</div>
+						{% endautoescape %}
+						<div class='post_reply' id='post_reply_{{ i.pid }}'> {# Used with ajax #}
+							<script type="text/javascript">
+								Dajaxice.forum.get_post_details(load_details,{"post_id": {{i.pid}}, "request_page": 1})
+							</script>
+						</div>
+					</div>
+				</td>
+			</tr>
+			{% if i.uid.userextend.signature %}
+			<tr class='user_signature_row'>
+				<td class='user_signature_col right_column'>
+					<span class='signature'>{{ i.uid.userextend.signature }}</span>
+				</td>
+			</tr>
+			{% endif %}
+			{% if meta.user_basic %}
+			<tr class='single_post_bottom_line'>
+				<td class='left_column'>&nbsp;</td>
+				<td class='right_column right_bottom_line'>
+					<div class='bottom_post_bar'>
+						<span class='send_reply bottom_post_bar_element'><a href='javascript:;' data-toggle='modal' data-target='#reply_dialog' onclick='window.recent_pid={{i.pid}}'>Comment</a></span>
+						<span class='send_post bottom_post_bar_element'><a href='#new_post_text' onclick='window.recent_pid={{i.pid}}; window.recent_floor={{ i.floor }}; set_quote_text()'>Reply</a></span>
+						<span class='upvote bottom_post_bar_element'><a id="votes_up_{{ i.pid }}"  href='javascript:;' onclick='send_vote({{ i.pid }},1)'>Upvote</a></span>
+						<span class='downvote bottom_post_bar_element'><a id="votes_down_{{ i.pid }}" href='javascript:;' onclick='send_vote({{ i.pid }},-1)'>Downvote</a></span>
+					</div>
+				</td>
+			</tr>
+			{% endif %}

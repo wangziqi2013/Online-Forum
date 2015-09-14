@@ -1,0 +1,60 @@
+{% extends 'general_base.html' %}
+{% load string_convert %}
+
+{% block title %}
+All Boards
+{% endblock title %}
+
+{% block head %}
+<!--
+<style type='text/css'>
+.board_type { background-color: #BBCCDD; padding: 5px }
+.board_title_description {width: 60%}
+.board_thread_post_num {width: 20%; text-align: center}
+.board_last_reply { width: 20% }
+#main_frame { margin: 0% 5% 50px 5%; width: 90%; }
+.board_list { background-color: #DDCCBB; padding: 5px }
+table {width: 100%}
+</style>
+//-->
+
+<style tyep='text/css'>
+.type-name {
+	margin-left: 5px;
+}
+</style>
+{% endblock head %}
+
+{% block body %}
+<div class="container" id='main_frame'>
+	<h1>View All Boards</h1>
+	
+	{% for board_type in boards %}
+	<div class="panel panel-primary">
+	    <div class="panel-heading">
+		<h3 class="panel-title"><span class="glyphicon glyphicon-certificate"></span><span class="type-name">{{ board_type.name }}</span></h3>
+	    </div>
+	    <div class="panel-body">
+		{% for i in board_type.board %}		
+		    <div class='col-md-8'>
+		        <a class='board_title' href='{% url forum.views.forum_thread_page bid=i.bid %}'>{{ i.name }}</a>
+			<div class='board_description'>{{ i.description }}</div>
+		    </div>
+		    <div class='col-md-1'>
+			{{ i.thread_num }}<br />{{ i.post_num }}
+		    </div>
+		    <div class='col-md-3'>
+			{% if i.last_thread %}
+			<span>{{ i.last_thread.last_reply_time|readable_delta:meta.now }}</span><br />
+			<span>{{ i.last_thread.title }}</span>
+			{% else %}
+			<span>No Thread</span>
+			{% endif %}
+		    </div>
+		{% endfor %}
+	    </div>
+	</div>
+	<br />
+	{% endfor %}
+</div>
+{% endblock body %}

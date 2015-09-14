@@ -1,0 +1,20 @@
+{% extends "general_base.html" %}
+{% block head %}
+<link href="/static/css/signin.css" rel="stylesheet">
+{% endblock head %}	
+{% block title %}
+Login Page
+{% endblock title %}
+{% block body %}
+<div class="container">
+  <form class="form-signin" action='{% url public.views.user_check_login %}' method='POST'>
+    <h2 class="form-signin-heading">User Login</h2>
+    {% csrf_token %}
+    <input class="form-control" type='text' name='username' placeholder="User Name" required autofocus value='{{default_username}}'></input>
+    <input class="form-control" type='password' name='password' placeholder="Enter Password" required></input>
+    <button class="btn btn-lg btn-primary btn-block" type="submit" value="Login">Login</button>
+    <button class="btn btn-lg btn-primary btn-block" type="reset" value="Clear All">Clear All</button>
+    <div><a href='{% url public.views.user_register_page %}'>Click Here</a> to register</div>
+  </form>
+</div>
+{% endblock body %}

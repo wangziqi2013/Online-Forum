@@ -1,0 +1,12 @@
+{% extends general_base.html %}
+{% load string_convert %}
+{% block title %}
+View Posts
+{% endblock title %}
+{% block head %}
+
+{% endblock head %}
+
+{% block body %}
+
+{% endblock body %}

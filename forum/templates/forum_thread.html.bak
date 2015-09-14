@@ -1,0 +1,121 @@
+{% extends 'general_base.html' %}
+{% block title %}
+{{ board_basic.name }}
+{% endblock title %}
+
+{% block head %}
+<style type='text/css'>
+#main_frame { margin: 0% 5% 50px 5%; width: 90%; position: relative }
+.thread_type { width: 10%; font-size: 70% }
+.thread_title { width: 60% }
+.thread_create_time { width: 10%; font-size: 70% }
+.thread_reply_read { width: 5%; font-size: 70% }
+.thread_last_reply { width: 10%; font-size: 70% }
+#page_selector { padding: 5px 0 5px 0; position: absolute; right: 0}
+.page_navigation { color: blue; margin: 5px 5px 5px 5px }
+#other_uppermost_sep { background-color: #BBCCDD }
+#uppermost_table { width: 100%; text-align: left }
+#your_position {font-size: 70%;}
+#set_thread_per_page_form { display: inline; margin: 5px }
+#set_thread_per_page { position: absolute; right: 0 }
+</style>
+
+{% endblock head %}
+
+{% block body %}
+{% load string_convert %}
+
+<div id='main_frame'>
+	<h1>{{ board_basic.name }}</h1>
+	<div id='your_position'>
+		<span>
+			<a href='{%url forum.views.forum_board_page%}'>Forum</a> / 
+			<a href='{% url forum.views.forum_thread_page bid=board_basic.bid %}'>{{ board_basic.name }}</a> /
+			<a href='{% url forum.views.forum_thread_page bid=board_basic.bid page=current_page thread_per_page=thread_per_page %}'>Page {{current_page}}</a>
+		</span>
+		<span id='set_thread_per_page'>
+		<form id='set_thread_per_page_form' action='{% url forum.views.set_thread_per_page %}' method='POST'>
+			{% csrf_token %}
+			<input name='bid' type='hidden' value='{{ board_basic.bid }}'></input>
+			Page <input name='goto_page' size='4'></input>
+			Thread / Page <input name='object_per_page' size='4'></input>
+			<input type='submit' value='Go'></input>
+		</form>
+		</span>
+	</div>
+	<br />
+	{% if threads.uppermost %}
+	<div id='uppermost'>
+		<table frame='hsides' id='uppermost_table'>
+			<tbody>
+			{% for i in threads.uppermost %}
+			{% include 'forum_thread_block.html' %}
+			{% endfor %}
+			<tbody>
+		</table>
+	</div>
+	{% endif %}
+	<div id='other_uppermost_sep'>&nbsp;</div>
+	{% if threads.other %}
+	<div id='other'>
+		<table frame='hsides' style='background-color=#CCCCCC' width='100%'>
+			<tbody>
+			{% for i in threads.other %}
+			<tr class='thread_row'>
+				<td class='thread_type'><a href=''>[{{ i.ttype.name }}]</a></td>
+				<td class='thread_title'><a href='{% url forum.views.forum_post_page tid=i.tid %}'>
+					{% if i.highlighted %}
+					<strong class='color_{{ i.highlight_color.rgb }}'>
+						{{ i.title }}
+					</strong>
+					{% else %}
+						{{ i.title }}
+					{% endif %}
+					</a></td>
+				<td class='thread_create_time' align='left'>{{i.uid.username}}<br/>{{i.create_time|readable_delta:meta.now}}</td>
+				<td class='thread_reply_read'>{{i.num_of_reply}}<br/>{{ i.num_of_read }}</td>
+				<td class='thread_last_reply'>
+					<span>{{ i.last_reply_user.username }}</span><br />
+					<span>{{ i.last_reply_time|readable_delta:meta.now }}</span>
+				</td>
+			</tr>
+			{% endfor %}
+			<tbody>
+		</table>
+	</div>
+	{% endif %}
+	<div id='page_selector'>
+		<table>
+			<tr>
+				{% if current_page != 1 %}
+				<td><span class='page_navigation'>
+					<a href='{% url forum.views.forum_thread_page board_basic.bid 1 thread_per_page %}'>First</a>
+				</span></td>
+				<td><span class='page_navigation'>
+					<a href='{% url forum.views.forum_thread_page board_basic.bid current_page|add:-1 thread_per_page %}'>Previous</a>
+				</span></td>
+				{% endif %}
+				{% for i in total_page|get_range:current_page %} {# starts at 1 #}
+				<td>
+					<span class='page_navigation'>
+						{% if i != current_page %}
+						<a href='{% url forum.views.forum_thread_page board_basic.bid i thread_per_page %}'>{{i}}</a>
+						{% else %}
+						<strong>{{i}}</strong>
+						{% endif %}
+					</span>
+				</td>
+				{% endfor %}
+				{% if current_page != total_page %}
+				<td><span class='page_navigation'>
+					<a href='{% url forum.views.forum_thread_page board_basic.bid current_page|add:1 thread_per_page %}'>Next</a>
+				</span></td>
+				<td><span class='page_navigation'>
+					<a href='{% url forum.views.forum_thread_page board_basic.bid total_page thread_per_page %}'>Last</a>
+				</span></td>
+				{% endif %}
+			</tr>
+		</table>
+	</div>
+</div>
+{% endblock body %}
